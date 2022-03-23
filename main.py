@@ -21,6 +21,7 @@ class Node():
     def __init__(self) -> None:
         self.color = getColor("empty")
 
+
 class Matrix():
     wall, clear, goal, seen = getColor("wall"), getColor("clear"), getColor("goal"), getColor("seen")
 
@@ -115,10 +116,7 @@ class Matrix():
                     seen.add((x2, y2))
 
                         
-
-
 m = Matrix()
-
 
 
 print("Started pathfinding")
