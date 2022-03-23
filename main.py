@@ -1,5 +1,5 @@
 import collections
-
+import time
 
 
 def getColor(color):
@@ -7,7 +7,7 @@ def getColor(color):
         return "🟦"
     elif color == "red" or color =="path":
         return "🟥"
-    elif color == "yellow" or color == "checked":
+    elif color == "yellow" or color == "seen":
         return "🟨"
     elif color == "green" or color == "goal":
         return "🟩"
@@ -22,32 +22,23 @@ class Node():
         self.color = getColor("empty")
 
 class Matrix():
-    wall, clear, goal = getColor("wall"), getColor("clear"), getColor("goal")
+    wall, clear, goal, seen = getColor("wall"), getColor("clear"), getColor("goal"), getColor("seen")
 
     def __init__(self, width = 13, height = 10, start = (3, 3), goal = (8, 4)) -> None:
-        self.matrix = [[Node() for x in range(width)] for x in range(height)]
         self.width = width
         self.height = height
         self.startPosition = start
         self.goalPosition = goal
         
-
-        self.setStartPosition(start); self.setGoalPosition(goal)
-
-        for i in range(self.width):
-            self.setColor((i,0), getColor("wall"))
-            self.setColor((i,-1), getColor("wall"))
-        for i in range(self.height):
-            self.setColor((0,i), getColor("wall"))
-            self.setColor((-1,i), getColor("wall"))
+        self.reset()
 
 
-    def setStartPosition(self, position):
-        self.setColor(position, getColor("start"))
+    def setStartPosition(self):
+        self.setColor(self.startPosition, getColor("start"))
 
 
-    def setGoalPosition(self, position):
-        self.setColor(position, getColor("goal"))
+    def setGoalPosition(self):
+        self.setColor(self.goalPosition, getColor("goal"))
     
 
     def setColor(self, position, color):
@@ -59,7 +50,22 @@ class Matrix():
         [print("".join([obj.color for obj in row])) for row in self.matrix]
 
 
-    def bfs(self):
+    def reset(self):
+        self.matrix = [[Node() for x in range(self.width)] for x in range(self.height)]
+
+        for i in range(self.width):
+            self.setColor((i,0), getColor("wall"))
+            self.setColor((i,-1), getColor("wall"))
+        for i in range(self.height):
+            self.setColor((0,i), getColor("wall"))
+            self.setColor((-1,i), getColor("wall"))
+
+        self.setStartPosition()
+        self.setGoalPosition()
+        
+
+    def bfs(self, verbose = False):
+
         # Startar queue
         queue = collections.deque([[self.startPosition]])
 
@@ -68,33 +74,54 @@ class Matrix():
 
         # Kör så länge de finns queue
         while queue:
-            # 
+
+            # Tar första elementet i queue och sätter path till det
             path = queue.popleft()
+
+            # Delar upp path på x&y 
+            # : tar de två sista elementen
             x, y = path[-1]
+
+            # Kollar om den har hittat mål
             if self.matrix[y][x].color == self.goal:
+                # Printar ut färdiga pathen om verbose == True
+                if verbose:
+                    for pos in path:
+                        self.setColor(pos, getColor("path"))
+                        self.show()
+                    self.reset()
+
+                # Skickar ut path till mål
                 return path
+
+            # Om man har valt att den ska visa hur den gör
+            if verbose:
+                print("\n")
+                self.show()
+                time.sleep(0.25)
+                if (x, y) != self.startPosition: 
+                    self.matrix[y][x].color = self.seen
+
+            # Loopar varje värde runt positionen som är vald
             for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
+
+                # Kollar så att den inte träffar vägg eller om programmet redan har varit där
                 if self.matrix[y2][x2].color != self.wall and (x2, y2) not in seen:
+
+                    # Lägger till i queue
                     queue.append(path + [(x2, y2)])
+
+                    # Lägger till i vad som har setts
                     seen.add((x2, y2))
-        print(path)
 
-
+                        
 
 
 m = Matrix()
 
-m.show()
-m.bfs()
 
 
-
-
-# 
-# width, height = 10, 5
-# 
-# path = bfs(grid, (5, 2))
-# 
-# 
-# 
-# print(path)
+print("Started pathfinding")
+path = m.bfs(verbose=True)
+print("Finished, the path is:")
+print(path)
