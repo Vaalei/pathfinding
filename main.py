@@ -135,7 +135,7 @@ class Matrix():
                     seen.add((x2, y2))
 
                         
-m = Matrix(width=50, goal=(36,8))
+m = Matrix(width=50, goal=(7,1))
 
 m.createWall((6,1), (6,7))
 m.createWall((10,8))
