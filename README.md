@@ -5,5 +5,3 @@
 # TODO
 * setStartPosition & setGoalPosition taking arguments
   * +removing old start location when using arguments
-* Import graphs????
-
